@@ -37,14 +37,14 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
 
   <!-- Floating launcher -->
   <button id="ab-launch" class="ab-launch" type="button" aria-label="Open the Manati application assistant">
-    <span class="ab-launch-dot">N</span> Apply with Nati
+    <span class="ab-launch-dot"><img src="/assets/nati-avatar.svg" alt="" width="64" height="64"></span> Apply with Nati
   </button>
 
   <!-- Pop-out overlay -->
   <div id="ab-overlay" class="ab-overlay" hidden>
     <div class="ab-device" role="dialog" aria-label="Manati application assistant" aria-modal="true">
       <div class="ab-head">
-        <div class="ab-av">N</div>
+        <div class="ab-av"><img src="/assets/nati-avatar.svg" alt="Nati" width="64" height="64"></div>
         <div class="ab-head-t"><div class="ab-logo">Nati</div><div class="ab-sub">Manati application assistant</div></div>
         <button id="ab-back" class="ab-back" type="button" aria-label="Go back one step" hidden>&#8249; Back</button>
         <button id="ab-close" class="ab-close" type="button" aria-label="Close">&times;</button>
@@ -68,14 +68,15 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   /* Launcher */
   .ab-launch{position:fixed;right:18px;bottom:18px;z-index:9998;display:inline-flex;align-items:center;gap:9px;background:var(--gold);color:var(--navy);border:0;border-radius:999px;padding:12px 18px;font-family:'Varela Round',system-ui,sans-serif;font-weight:700;font-size:15px;box-shadow:0 8px 24px rgba(0,0,0,.18);cursor:pointer}
   .ab-launch:hover{filter:brightness(.97)}
-  .ab-launch-dot{width:24px;height:24px;border-radius:50%;background:var(--navy);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+  .ab-launch-dot{width:28px;height:28px;padding:2px;border-radius:50%;background:var(--navy);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px;flex:none}
+  .ab-launch-dot img,.ab-av img,.ab-pic img{width:100%;height:100%;display:block;border-radius:50%}
 
   /* Overlay + device */
   .ab-overlay{position:fixed;inset:0;z-index:9999;background:rgba(20,18,16,.55);display:flex;align-items:center;justify-content:center;padding:24px}
   .ab-overlay[hidden]{display:none}
   .ab-device{background:#fff;border-radius:20px;box-shadow:0 24px 60px rgba(0,0,0,.3);overflow:hidden;display:flex;flex-direction:column;width:520px;max-width:100%;height:780px;max-height:94vh;font-family:'Duru Sans',system-ui,sans-serif}
   .ab-head{background:var(--navy);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:11px}
-  .ab-av{width:36px;height:36px;border-radius:50%;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy)}
+  .ab-av{width:36px;height:36px;border-radius:50%;overflow:hidden;flex:none;background:var(--gold);display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy)}
   .ab-head-t{flex:1;min-width:0}
   .ab-logo{font-family:'Varela Round';font-weight:700;font-size:16px}
   .ab-sub{font-size:12px;color:#cfc9bd}
@@ -92,7 +93,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   .ab-bub{max-width:85%;padding:11px 14px;border-radius:16px;font-size:14.5px;line-height:1.5;white-space:pre-line}
   .ab-row.bot .ab-bub{background:#f3f1ea;color:#322f29;border-bottom-left-radius:5px}
   .ab-row.me .ab-bub{background:var(--navy);color:#fff;border-bottom-right-radius:5px}
-  .ab-pic{width:28px;height:28px;border-radius:50%;background:var(--gold);flex:none;display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy);font-size:13px}
+  .ab-pic{width:28px;height:28px;border-radius:50%;overflow:hidden;background:var(--gold);flex:none;display:flex;align-items:center;justify-content:center;font-family:'Varela Round';font-weight:700;color:var(--navy);font-size:13px}
   .ab-dock{border-top:1px solid var(--line);padding:12px;background:#fff;max-height:62%;overflow-y:auto}
   .ab-foot{font-size:10.5px;color:#a59f90;text-align:center;padding:5px 10px;background:#faf8f3;border-top:1px solid var(--line)}
   .ab-field{display:flex;gap:8px}
@@ -336,7 +337,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   backBtn.onclick=goBack;
   var EDIT_FROM=0; for(var _z=0;_z<FLOW.length;_z++){ if(FLOW[_z].k==='institution'){ EDIT_FROM=_z; break; } }
   var OTP_IDX=0, REVIEW_IDX=0; for(var _y=0;_y<FLOW.length;_y++){ if(FLOW[_y].t==='otp') OTP_IDX=_y; if(FLOW[_y].t==='review') REVIEW_IDX=_y; }
-  function addBot(t){var r=document.createElement('div');r.className='ab-row bot';r.innerHTML='<div class="ab-pic">N</div><div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
+  function addBot(t){var r=document.createElement('div');r.className='ab-row bot';r.innerHTML='<div class="ab-pic"><img src="/assets/nati-avatar.svg" alt="" width="64" height="64"></div><div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function addMe(t){var r=document.createElement('div');r.className='ab-row me';r.innerHTML='<div class="ab-bub"></div>';r.querySelector('.ab-bub').textContent=t;chat.appendChild(r);chat.scrollTop=chat.scrollHeight;}
   function prog(){bar.style.width=Math.round((i/(FLOW.length-1))*100)+'%';}
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');}
