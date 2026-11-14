@@ -41,3 +41,12 @@ export async function hasOpenApplication(phone27, email) {
   const n = await rpc("object", "execute_kw", [process.env.TF_LOOKUP_DB, u, process.env.TF_LOOKUP_PASSWORD, "crm.lead", "search_count", [domain]]);
   return n > 0;
 }
+
+// Leads currently in the Applications "Nati drop-off" stage (for reminders).
+// Read-only. Staff moving a lead out of the stage, or assigning it, stops reminders.
+export async function listDropoffLeads(limit = 300) {
+  const u = await uid();
+  return rpc("object", "execute_kw", [process.env.TF_LOOKUP_DB, u, process.env.TF_LOOKUP_PASSWORD, "crm.lead", "search_read",
+    [[["team_id", "=", 1], ["type", "=", "opportunity"], ["stage_id.name", "=", "Nati drop-off"]]],
+    { fields: ["id", "description", "phone", "mobile", "email_from", "partner_id", "user_id"], limit, order: "id asc" }]);
+}
