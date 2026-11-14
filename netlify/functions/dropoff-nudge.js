@@ -30,9 +30,27 @@ const num = (v, d) => { const n = parseInt(v, 10); return Number.isFinite(n) && 
 const maskPhone = (p) => p ? p.slice(0, 4) + "*****" + p.slice(-2) : "-";
 const maskEmail = (e) => e ? e.slice(0, 2) + "***@" + e.split("@")[1] : "-";
 
+// Optional: NUDGE_TEST_EMAIL=you@example.com sends both reminder emails to that
+// address ONCE (per address), on the next run, so you can check they arrive in
+// the inbox. Works in "dry" and "live" mode, outside sending hours too.
+async function sendTestOnce() {
+  const to = normaliseEmail(process.env.NUDGE_TEST_EMAIL);
+  if (!to || !process.env.BREVO_API_KEY) return;
+  const st = state(), key = "test-" + optKey("email", to);
+  try { if (await st.get(key)) return; } catch (_) { return; }
+  await st.setJSON(key, { at: Date.now() });
+  const tok = stopToken(0);
+  const first = firstName(to.split("@")[0].split(/[._-]/)[0]);
+  const e1 = email1(first, Date.now() - 24 * 3600e3, tok), e2 = email2(first, tok);
+  const ok1 = await sendEmail(to, { ...e1, subject: "[TEST] " + e1.subject });
+  const ok2 = await sendEmail(to, { ...e2, subject: "[TEST] " + e2.subject });
+  console.log("nudge test emails", maskEmail(to), ok1, ok2);
+}
+
 export default async () => {
   const m = mode();
   if (m === "off") return new Response("off");
+  await sendTestOnce();
   if (!inSendingHours()) return new Response("outside sending hours");
   if (!tfConfigured()) { console.log("nudge: TaskFlow lookup not configured"); return new Response("no taskflow"); }
   if (!process.env.BREVO_API_KEY) { console.log("nudge: Brevo not configured"); return new Response("no email"); }
