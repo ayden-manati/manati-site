@@ -44,6 +44,8 @@ export default async () => {
       // applications do). The note says it is the student.
       data["x_sponsor.one-name"] = rec.first; data["X_sponsor.one-surname"] = rec.last; data["x_sponsor.one-phone"] = local; data["x_sponsor.one-email"] = rec.email;
     }
+    // Campaign tags were checked when the record was saved (started.js).
+    if (rec.campaign && rec.campaign.campaign) { data["x_tag_three"] = rec.campaign.source || null; data["x_tag_four"] = rec.campaign.campaign; }
     if (!rec.first) { await s.delete(b.key); dropped++; continue; }
     if (rec.unlisted) { delete data["x_crm.lead-x_educational_institution_id"]; data["x_crm.lead-x_name_of_campus"] = "Not on Nati list: " + rec.institution; }
     // Never send a drop-off for someone who already has an open application in

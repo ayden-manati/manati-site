@@ -50,3 +50,17 @@ export async function listDropoffLeads(limit = 300) {
     [[["team_id", "=", 1], ["type", "=", "opportunity"], ["stage_id.name", "=", "Nati drop-off"]]],
     { fields: ["id", "description", "phone", "mobile", "email_from", "partner_id", "user_id"], limit, order: "id asc" }]);
 }
+
+// Campaign tags (see campaign.js). Looks for a Link Tracker entry pointing to
+// manati.co.za whose campaign matches exactly (case aside), and returns the
+// TaskFlow spelling of the campaign and, if one of those links has it, the source.
+// Inputs are already cleaned: no % or _, so =ilike is an exact match.
+export async function findTrackedLink(campaign, source) {
+  const u = await uid();
+  const rows = await rpc("object", "execute_kw", [process.env.TF_LOOKUP_DB, u, process.env.TF_LOOKUP_PASSWORD, "link.tracker", "search_read",
+    [[["campaign_id.name", "=ilike", campaign], ["url", "ilike", "manati.co.za"]]],
+    { fields: ["campaign_id", "source_id"], limit: 200 }]);
+  if (!rows || !rows.length || !rows[0].campaign_id) return null;
+  const src = source ? rows.find((r) => r.source_id && String(r.source_id[1]).toLowerCase() === source.toLowerCase()) : null;
+  return { campaign: rows[0].campaign_id[1], source: src ? src.source_id[1] : null };
+}

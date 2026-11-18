@@ -75,6 +75,18 @@ const organizationSchema = {
       href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Duru+Sans&display=swap"
       rel="stylesheet"
     />
+    <!-- Campaign links: tracked links from TaskFlow's Link Tracker arrive with utm_campaign / utm_source.
+         Kept for this browser session only, so Nati can tag the application even if the visitor browses first.
+         The server checks the values against the Link Tracker before anything is sent to TaskFlow. -->
+    <script is:inline>
+      (function () {
+        try {
+          var p = new URLSearchParams(location.search);
+          var c = p.get('utm_campaign');
+          if (c) sessionStorage.setItem('manati-utm', JSON.stringify({ c: c.slice(0, 60), s: (p.get('utm_source') || '').slice(0, 60) }));
+        } catch (e) {}
+      })();
+    </script>
     <!-- Google Analytics (GA4) - property "Manati2025" - loaded only after cookie consent -->
     <script is:inline>
       window.dataLayer = window.dataLayer || [];
