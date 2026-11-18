@@ -453,12 +453,15 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
     }catch(e){}
   }
 
+  // Campaign link details saved by Base.astro for this session (checked again on the server).
+  function campaignRef(){ try{ var o=JSON.parse(sessionStorage.getItem('manati-utm')||'null'); return (o&&o.c)?{campaign:String(o.c),source:String(o.s||'')}:null; }catch(e){ return null; } }
+
   async function submitApp(){
     if(_tsKey && !_tsToken){ var ee=document.getElementById('ab-err'); if(ee) ee.textContent="Please complete the verification check above."; return; }
     addMe('Submit ✓'); BUSY=true; backBtn.hidden=true;
     dock.innerHTML='<div class="ab-hint">Submitting your application…</div>';
     try{
-      var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:'',turnstileToken:_tsToken,verifiedToken:S.vtok||''})});
+      var res=await fetch('/api/apply',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:buildData(),company:'',turnstileToken:_tsToken,verifiedToken:S.vtok||'',campaign:campaignRef()})});
       var out=await res.json().catch(function(){return {};});
       if(res.ok && out.ok){
         finished=true; HIST=[];
@@ -577,7 +580,7 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
         S[kp]=S[kp+'2']=localPhone(O.mob); S[ke]=S[ke+'2']=String(O.em||'').trim().toLowerCase();
         if(sp){ if(!S.s1_first) S.s1_first=O.fn; if(!S.s1_last) S.s1_last=O.ln; } else { if(!S.student_first) S.student_first=O.fn; if(!S.student_last) S.student_last=O.ln; }
         if(O.ch==='sms'){ S._lock[kp]=S._lock[kp+'2']=true; } else { S._lock[ke]=S._lock[ke+'2']=true; }
-        postJSON('/api/started',{verifiedToken:S.vtok,data:{who:S.who,first:O.fn,last:O.ln,institution:S.institution_tf||S.institution,unlisted:!!S.institution_unlisted,existing:S.existing_customer,wa:S.wa_channel,phone:O.mob,email:O.em}});
+        postJSON('/api/started',{verifiedToken:S.vtok,campaign:campaignRef(),data:{who:S.who,first:O.fn,last:O.ln,institution:S.institution_tf||S.institution,unlisted:!!S.institution_unlisted,existing:S.existing_customer,wa:S.wa_channel,phone:O.mob,email:O.em}});
         S._otp=null;
         addMe('✓ '+(O.ch==='sms'?'Mobile number':'Email address')+' verified');
         afterVerify();

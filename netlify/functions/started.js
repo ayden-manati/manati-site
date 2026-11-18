@@ -3,6 +3,7 @@
 // their contact details so we can follow up if they do not finish.
 import { json, checkVerified, normalisePhone, normaliseEmail, limiter, clientIpOf } from "../lib/otp.js";
 import { store, keyFor } from "../lib/dropoff.js";
+import { approvedCampaign } from "../lib/campaign.js";
 
 const ipLimit = limiter(10 * 60 * 1000, 10);
 const clip = (v, n) => (v === undefined || v === null ? null : String(v).trim().slice(0, n) || null);
@@ -22,7 +23,9 @@ export default async (req) => {
     email: normaliseEmail(d.email),
     institution: clip(d.institution, 120), unlisted: !!d.unlisted,
     existing: d.existing === "Yes" ? "Yes" : "No",
-    wa: d.wa === "WhatsApp" ? "WhatsApp" : "SMS/email"
+    wa: d.wa === "WhatsApp" ? "WhatsApp" : "SMS/email",
+    // Checked now and stored in TaskFlow's spelling; null when there is no approved tracked link.
+    campaign: await approvedCampaign(body && body.campaign)
   };
   try { await store().setJSON(keyFor(vt.ch, vt.to), rec); } catch (e) { console.log("started store failed", String(e).slice(0, 120)); }
   return json(200, { ok: true });
