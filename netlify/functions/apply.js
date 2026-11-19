@@ -12,6 +12,7 @@
 import { checkVerified, normalisePhone, normaliseEmail } from "../lib/otp.js";
 import { forget } from "../lib/dropoff.js";
 import { approvedCampaign, campaignTag } from "../lib/campaign.js";
+import { ID_KEYS, normaliseId, badSaId } from "../lib/said.js";
 
 // Canonical payload template — every key TaskFlow expects, defaulting to null.
 // Keys and casing must match exactly (note the capital-X on two of them).
@@ -213,6 +214,8 @@ export function buildPayload(data) {
       out[key] = data[key];
     }
   }
+  // ID numbers: strip spaces and restore a dropped leading zero (see lib/said.js).
+  for (const k of ID_KEYS) out[k] = normaliseId(out[k]);
   // Server-set fields (don't trust the client for these)
   out["x_application_outcome"] = out["x_application_outcome"] || "New Application";
   out["x_source"] = out["x_source"] || "manati.co.za web bot";
@@ -325,6 +328,10 @@ export default async (req) => {
   // Source and tags three to five are server-set too: TaskFlow creates a tag for any value it gets.
   for (const k of ["x_source", "x_tag_one", "x_tag_three", "x_tag_four", "x_tag_five"]) delete data[k];
   const payload = buildPayload(data);
+  // An invalid SA ID would still log a bureau enquiry in TaskFlow, so refuse it here.
+  if (ID_KEYS.some((k) => badSaId(payload[k]))) {
+    return json(400, { ok: false, error: "That SA ID number does not look right. Please check each digit and try again." });
+  }
   // Campaign tags from a tracked link, only if they match the Link Tracker (see lib/campaign.js).
   const camp = await approvedCampaign(body && body.campaign);
   if (camp) payload["x_tag_four"] = campaignTag(camp); // x_tag_three is ignored by TaskFlow, see campaign.js
