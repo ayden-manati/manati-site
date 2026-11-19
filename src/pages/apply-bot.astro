@@ -222,7 +222,18 @@ const TS_SITE_KEY = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY || '';
   function em(v){return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)?null:"That doesn't look like a valid email.";}
   function ph(v){return v.replace(/\D/g,'').length>=9?null:"Please enter a valid mobile number.";}
   function reqnum(v){return (v!==''&&!isNaN(Number(v))&&Number(v)>=0)?null:"Please enter an amount.";}
-  function idsoft(v){var s=v.replace(/\s/g,''); if(!s) return null; return (/^\d{13}$/.test(s)||s.length>=6)?null:"Enter a 13-digit SA ID or a valid passport number.";}
+  // SA ID check (same rules as netlify/lib/said.js): date, citizenship digit and Luhn check digit.
+  function luhnOk(s){var t=0;for(var i=0;i<s.length;i++){var d=+s[s.length-1-i];if(i%2){d*=2;if(d>9)d-=9;}t+=d;}return t%10===0;}
+  function saIdOk(s){if(!/^\d{13}$/.test(s))return false;var mm=+s.slice(2,4),dd=+s.slice(4,6);if(mm<1||mm>12||dd<1||dd>31)return false;if("012".indexOf(s[10])<0)return false;return luhnOk(s);}
+  function idsoft(v){
+    var s=v.replace(/\s/g,''); if(!s) return null;
+    if(/^\d+$/.test(s)){
+      if(s.length===13) return saIdOk(s)?null:"That SA ID number does not look right. Please check each digit.";
+      if(s.length===12 && saIdOk('0'+s)) return "An SA ID number has 13 digits. Did you leave out the 0 at the start? Try 0"+s+".";
+      if(s.length===12 || s.length===14) return "An SA ID number has 13 digits. Please check it.";
+    }
+    return s.length>=6?null:"Enter a 13-digit SA ID or a valid passport number.";
+  }
   // Population group "Prefer not to say" is a valid choice but is not sent to TaskFlow as a race value.
   function race(v){return (v && v!=='Prefer not to say')?v:undefined;}
 
